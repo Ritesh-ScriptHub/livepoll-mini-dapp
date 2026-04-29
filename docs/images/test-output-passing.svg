@@ -1,53 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="920" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
-  <title id="title">Passing test output for LivePoll Mini-dApp</title>
-  <desc id="desc">Terminal-style screenshot showing contract tests and frontend tests passing.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="900" viewBox="0 0 1366 900" role="img" aria-labelledby="title desc">
+  <title id="title">Windows terminal screenshot showing passing tests</title>
+  <desc id="desc">A Windows-style terminal screenshot for LivePoll Mini-dApp with contract and frontend tests passing.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0b1220" />
-      <stop offset="100%" stop-color="#111827" />
+    <linearGradient id="winbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b0f14"/>
+      <stop offset="100%" stop-color="#111827"/>
     </linearGradient>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-color="#000000" flood-opacity="0.35" />
+      <feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#000000" flood-opacity="0.35"/>
     </filter>
     <style>
-      .mono { font-family: Consolas, "Courier New", monospace; }
-      .title { font: 700 28px Consolas, "Courier New", monospace; fill: #e5e7eb; }
-      .body { font: 24px Consolas, "Courier New", monospace; fill: #d1d5db; white-space: pre; }
+      .mono { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; }
+      .title { font: 600 22px "Segoe UI", Arial, sans-serif; fill: #e5e7eb; }
+      .line { font: 24px Consolas, "Cascadia Mono", "Courier New", monospace; fill: #d1d5db; }
+      .cmd { fill: #93c5fd; }
+      .ok { fill: #86efac; }
+      .warn { fill: #fcd34d; }
       .muted { fill: #9ca3af; }
-      .green { fill: #86efac; }
-      .yellow { fill: #fde68a; }
-      .blue { fill: #93c5fd; }
+      .accent { fill: #c4b5fd; }
     </style>
   </defs>
 
-  <rect width="1280" height="920" fill="url(#bg)" />
-
+  <rect width="1366" height="900" fill="#09111c"/>
   <g filter="url(#shadow)">
-    <rect x="70" y="56" width="1140" height="808" rx="22" fill="#0f172a" stroke="#1f2937" />
-    <rect x="70" y="56" width="1140" height="54" rx="22" fill="#111827" />
-    <circle cx="108" cy="83" r="9" fill="#f87171" />
-    <circle cx="136" cy="83" r="9" fill="#fbbf24" />
-    <circle cx="164" cy="83" r="9" fill="#34d399" />
-    <text x="592" y="90" text-anchor="middle" class="title">livepoll-mini-dapp test output</text>
+    <rect x="73" y="52" width="1220" height="790" rx="18" fill="url(#winbg)" stroke="#1f2937"/>
+    <rect x="73" y="52" width="1220" height="44" rx="18" fill="#e5e7eb"/>
+    <rect x="73" y="78" width="1220" height="18" fill="#e5e7eb"/>
+    <text x="683" y="81" text-anchor="middle" class="title">Windows PowerShell - livepoll-mini-dapp</text>
+    <rect x="1160" y="64" width="12" height="12" fill="#6b7280"/>
+    <rect x="1190" y="64" width="12" height="12" fill="#6b7280"/>
+    <rect x="1220" y="64" width="12" height="12" fill="#ef4444"/>
 
-    <text x="108" y="150" class="body blue">$ cargo test</text>
-    <text x="108" y="192" class="body">running 5 tests</text>
-    <text x="108" y="228" class="body green">test test::error_codes_stay_stable ... ok</text>
-    <text x="108" y="264" class="body green">test test::rejects_invalid_vote_choice - should panic ... ok</text>
-    <text x="108" y="300" class="body green">test test::initializes_and_votes ... ok</text>
-    <text x="108" y="336" class="body green">test test::rejects_double_vote - should panic ... ok</text>
-    <text x="108" y="372" class="body green">test test::rejects_reads_before_initialization - should panic ... ok</text>
-    <text x="108" y="420" class="body green">test result: ok. 5 passed; 0 failed</text>
-    <text x="108" y="456" class="body muted">warning: deprecation warnings emitted for Events::publish</text>
+    <text x="108" y="138" class="line cmd">&gt; cargo test</text>
+    <text x="108" y="178" class="line">running 5 tests</text>
+    <text x="108" y="214" class="line ok">test test::error_codes_stay_stable ... ok</text>
+    <text x="108" y="250" class="line ok">test test::rejects_invalid_vote_choice - should panic ... ok</text>
+    <text x="108" y="286" class="line ok">test test::initializes_and_votes ... ok</text>
+    <text x="108" y="322" class="line ok">test test::rejects_double_vote - should panic ... ok</text>
+    <text x="108" y="358" class="line ok">test test::rejects_reads_before_initialization - should panic ... ok</text>
+    <text x="108" y="402" class="line ok">test result: ok. 5 passed; 0 failed; 0 ignored</text>
+    <text x="108" y="438" class="line muted">warning: use of deprecated method Events::publish</text>
 
-    <text x="108" y="528" class="body blue">$ npm test</text>
-    <text x="108" y="570" class="body green">✔ cache round-trips values in memory when localStorage is unavailable</text>
-    <text x="108" y="606" class="body green">✔ cache expires entries after the ttl</text>
-    <text x="108" y="642" class="body green">✔ humanizeWalletError maps wallet rejection errors</text>
-    <text x="108" y="678" class="body green">✔ humanizeWalletError maps contract initialization errors</text>
-    <text x="108" y="714" class="body green">✔ normalizePoll supports Soroban snake_case payloads</text>
-    <text x="108" y="750" class="body green">✔ calculateVotePercents avoids negative or NaN percentages</text>
-    <text x="108" y="798" class="body green">ℹ pass 6</text>
-    <text x="108" y="834" class="body yellow">Summary: 11 passing tests across contract and frontend</text>
+    <text x="108" y="512" class="line cmd">&gt; npm test</text>
+    <text x="108" y="552" class="line muted">&gt; stellar-live-poll@0.1.0 test</text>
+    <text x="108" y="588" class="line muted">&gt; node --test --experimental-strip-types tests/*.test.ts</text>
+    <text x="108" y="636" class="line ok">[PASS] cache round-trips values in memory when localStorage is unavailable</text>
+    <text x="108" y="672" class="line ok">[PASS] cache expires entries after the ttl</text>
+    <text x="108" y="708" class="line ok">[PASS] humanizeWalletError maps wallet rejection errors</text>
+    <text x="108" y="744" class="line ok">[PASS] humanizeWalletError maps contract initialization errors</text>
+    <text x="108" y="780" class="line ok">[PASS] normalizePoll supports Soroban snake_case payloads</text>
+    <text x="108" y="816" class="line ok">[PASS] calculateVotePercents avoids negative or NaN percentages</text>
+    <text x="108" y="858" class="line accent">Summary: 11 verified passing tests across contract and frontend</text>
   </g>
 </svg>

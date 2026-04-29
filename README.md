@@ -8,6 +8,7 @@ LivePoll is a small end-to-end Stellar Soroban mini-dApp for testnet. It include
 - React frontend for wallet connect, poll initialization, voting, and live refresh
 - Frontend and contract tests
 - Setup, deploy, and submission-ready documentation
+- Requirement checklist in [docs/requirements-check.md](/f:/Steller/livepoll-mini-dapp/docs/requirements-check.md:1)
 
 ## Repository structure
 
@@ -37,6 +38,11 @@ livepoll-mini-dapp/
 - Transaction lifecycle feedback from signing through confirmation
 - Poll state and wallet vote caching for faster reloads
 - Contract event feed sourced from Stellar RPC
+
+## Live demo
+
+- Deployed app: `https://livepoll-mini-dapp.netlify.app/`
+- Demo video: `https://drive.google.com/file/d/11M34NFfMhx-YCESKixXsz0nZfDKVs7gn/view?usp=drive_link`
 
 ## Testnet configuration
 
@@ -89,7 +95,9 @@ cargo test
 ## Demo assets
 
 - Screenshots: [docs/images](/f:/Steller/livepoll-mini-dapp/docs/images:1)
-- Recording status: pending actual video file or uploaded link
+- Post-vote screen:
+
+![LivePoll after voting](docs/images/livepoll-after-vote.png)
 
 ## Notes
 
