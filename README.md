@@ -7,8 +7,7 @@ LivePoll is a small end-to-end Stellar Soroban mini-dApp for testnet. It include
 - Smart contract for poll initialization, voting, and vote lookup
 - React frontend for wallet connect, poll initialization, voting, and live refresh
 - Frontend and contract tests
-- Setup, deploy, and demo documentation
-- Requirement audit in [docs/requirements-check.md](/f:/Steller/livepoll-mini-dapp/docs/requirements-check.md:1)
+- Setup, deploy, and submission-ready documentation
 
 ## Repository structure
 
@@ -22,9 +21,8 @@ livepoll-mini-dapp/
 |  `- scripts/
 |     `- deploy-testnet.ps1
 |- docs/
-|  |- demo-video-script.md
 |  |- images/
-|  `- requirements-check.md
+|  `- ...
 `- frontend/
    |- src/
    |- tests/
@@ -90,7 +88,6 @@ cargo test
 
 ## Demo assets
 
-- Demo script: [docs/demo-video-script.md](/f:/Steller/livepoll-mini-dapp/docs/demo-video-script.md:1)
 - Screenshots: [docs/images](/f:/Steller/livepoll-mini-dapp/docs/images:1)
 - Recording status: pending actual video file or uploaded link
 
@@ -98,4 +95,3 @@ cargo test
 
 - The frontend `.env` is intentionally ignored; use `.env.example` as the template.
 - Contract tests currently pass, but `cargo test` emits Soroban event deprecation warnings from `Events::publish`.
-- The requirement audit marks the current repo as complete except for the missing recorded demo artifact.
