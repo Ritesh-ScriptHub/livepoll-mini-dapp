@@ -80,6 +80,14 @@ cd contracts
 cargo test
 ```
 
+## Passing test output
+
+![Passing test output](docs/images/test-output-passing.svg)
+
+- Contract tests: `5 passed`
+- Frontend tests: `6 passed`
+- Total verified passing tests: `11`
+
 ## Demo assets
 
 - Demo script: [docs/demo-video-script.md](/f:/Steller/livepoll-mini-dapp/docs/demo-video-script.md:1)
