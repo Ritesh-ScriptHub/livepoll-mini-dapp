@@ -18,7 +18,11 @@
     "react-dom": "^19.1.0"
   },
   "optionalDependencies": {
+<<<<<<< HEAD
     "bufferutil": "^4.1.0",
+=======
+    "bufferutil": "^4.0.9",
+>>>>>>> 58bb1e1c28bddae475d5c086c76a3bb997253538
     "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {
