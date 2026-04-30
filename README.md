@@ -1,10 +1,15 @@
 # LivePoll Mini-dApp
 
-LivePoll is a small end-to-end Stellar Soroban mini-dApp for testnet. It includes a Soroban smart contract for a one-question poll, a React frontend with multi-wallet support, automated tests, and deployment/docs material for a short project submission.
+LivePoll is a small end-to-end Stellar Soroban mini-dApp for testnet. It now includes a poll contract plus a separate reward-token contract, a React frontend with multi-wallet support, automated tests, and deployment/docs material for an advanced project submission.
+
+## Live demo
+
+- Deployed app: `https://livepoll-mini-dapp.netlify.app/`
+- Demo video: `https://drive.google.com/file/d/11M34NFfMhx-YCESKixXsz0nZfDKVs7gn/view?usp=drive_link`
 
 ## Deliverable overview
 
-- Smart contract for poll initialization, voting, and vote lookup
+- Smart contracts for poll initialization, voting, vote lookup, and reward-point minting
 - React frontend for wallet connect, poll initialization, voting, and live refresh
 - Frontend and contract tests
 - Setup, deploy, and submission-ready documentation
@@ -16,6 +21,7 @@ LivePoll is a small end-to-end Stellar Soroban mini-dApp for testnet. It include
 livepoll-mini-dapp/
 |- contracts/
 |  |- live_poll/
+|  |- poll_reward_token/
 |  |  `- src/
 |  |     |- lib.rs
 |  |     `- test.rs
@@ -34,23 +40,39 @@ livepoll-mini-dapp/
 
 - One-question on-chain poll deployed on Stellar testnet
 - One vote per wallet address
+- Each successful vote mints reward points through an inter-contract Soroban call
+- Separate `poll-reward-token` contract with admin handoff and total mint tracking
 - Wallet support for Freighter, xBull, Albedo, LOBSTR, Rabet, and Hana
 - Transaction lifecycle feedback from signing through confirmation
 - Poll state and wallet vote caching for faster reloads
 - Contract event feed sourced from Stellar RPC
+- GitHub Actions CI for contract tests plus frontend lint/build/test
+- Root-level `netlify.toml` so Netlify can deploy the repo from the monorepo without moving the frontend
 
-## Live demo
+## What's New In The Advanced Version
 
-- Deployed app: `https://livepoll-mini-dapp.netlify.app/`
-- Demo video: `https://drive.google.com/file/d/11M34NFfMhx-YCESKixXsz0nZfDKVs7gn/view?usp=drive_link`
+- Added an inter-contract reward flow where `live_poll.vote_for` mints points through the separate `poll_reward_token` contract.
+- Expanded the Soroban workspace to include the custom `poll_reward_token` contract with mint tracking and admin handoff support.
+- Added repository CI with GitHub Actions for contract tests plus frontend test/lint/build verification.
+- Added root-level Netlify deployment config with SPA routing support through `netlify.toml`.
+- Updated the frontend to surface reward-token details and improved mobile behavior for action controls, analytics cards, and the live activity feed.
+- Added legacy-safe frontend behavior so older deployed contracts without `vote_for` now fall back to `vote` automatically.
+- Added support for both `VITE_STELLAR_REWARD_TOKEN_ID` and `VITE_STELLAR_VOTE_TOKEN_ID` environment variable names.
+- Redeployed the advanced poll and reward-token contract pair on Stellar testnet and updated the frontend environment to point at the live advanced deployment.
+
 
 ## Testnet configuration
 
-- Contract ID: `CDGFRHDXK5YMXO5DUPB7M3CHC34L3KIJAHUHRZ6XETEUX5APZO3I74KX`
+- Poll Contract ID: `CBRGNWEUASYW7IPGZTST7NQWCUUXPMZR236NIGVPQGPY6ZJAXQ5SATVY`
+- Reward Token Contract ID: `CAEACAAUTW6JP5LGBFQHAXOLXNBVNPRPOFOHNRH5DEAA6AMWACA5YF3L`
 - Network: `Test SDF Network ; September 2015`
 - RPC: `https://soroban-testnet.stellar.org`
 - Horizon: `https://horizon-testnet.stellar.org`
-- Deployment transaction: `f72a461608d5a6eb746e1473f183d32ff4b88b24bcc04f3bf50addcd1de8b875`
+- Reward token deploy transaction: `6194f8a682f7f0a3e613d238e8a6e3d9eb2e6a3cf48d628930228bd988c4414b`
+- Reward token init transaction: `fe3a6b8e42a7717fd5c4afa872f883bc551450a83d1d04d2f8ec45cd796908f9`
+- Poll deploy transaction: `35403b04eb27d11eacb2d6035ae578baeb3db0ba0aa9fdb7bdd224733f141826`
+- Poll init transaction: `4b74afdd7a270729e5f8f9ff725d92f0f758dabb192cb4d1e8c23d1dc008fa7c`
+- Verified `vote_for` reward-mint transaction: `4f45efe666c4789d20ce938cacdf08b4bd9fbc2b850dc37116c37c9d17ead53a`
 
 ## Local setup
 
@@ -76,6 +98,7 @@ stellar contract build
 ```powershell
 cd frontend
 & "C:\Program Files\nodejs\npm.cmd" run test
+& "C:\Program Files\nodejs\npm.cmd" run lint
 & "C:\Program Files\nodejs\npm.cmd" run build
 ```
 
@@ -102,4 +125,5 @@ cargo test
 ## Notes
 
 - The frontend `.env` is intentionally ignored; use `.env.example` as the template.
-- Contract tests currently pass, but `cargo test` emits Soroban event deprecation warnings from `Events::publish`.
+- Set both `VITE_STELLAR_CONTRACT_ID` and `VITE_STELLAR_REWARD_TOKEN_ID` in `frontend/.env` for local end-to-end testing.
+- The poll contract now expects the reward-token contract to be initialized with the poll contract as its minter before voting rewards can mint successfully.

@@ -10,6 +10,13 @@
 - Demo video link in README: done
 - Deliverable includes contract, frontend, docs, and tests: done
 
+## Advanced Submission Checklist
+
+- Inter-contract call working: implemented
+- Custom token included: implemented
+- CI/CD running: configured in repo
+- Mobile responsive: implemented
+
 ## Published links
 
 - Repository: `https://github.com/Ritesh-ScriptHub/livepoll-mini-dapp`
@@ -20,5 +27,9 @@
 
 - Passing test screenshot: `docs/images/test-output-passing.svg`
 - App screenshot after voting: `docs/images/livepoll-after-vote.png`
-- Testnet contract ID: `CDGFRHDXK5YMXO5DUPB7M3CHC34L3KIJAHUHRZ6XETEUX5APZO3I74KX`
-- Deployment transaction: `f72a461608d5a6eb746e1473f183d32ff4b88b24bcc04f3bf50addcd1de8b875`
+- Testnet poll contract ID: `CBRGNWEUASYW7IPGZTST7NQWCUUXPMZR236NIGVPQGPY6ZJAXQ5SATVY`
+- Testnet reward token contract ID: `CAEACAAUTW6JP5LGBFQHAXOLXNBVNPRPOFOHNRH5DEAA6AMWACA5YF3L`
+- Verified advanced vote transaction: `4f45efe666c4789d20ce938cacdf08b4bd9fbc2b850dc37116c37c9d17ead53a`
+- Contract workspace includes `live_poll` and `poll_reward_token`
+- Root deployment config: `netlify.toml`
+- CI workflow: `.github/workflows/ci.yml`

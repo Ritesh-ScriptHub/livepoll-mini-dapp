@@ -7,9 +7,11 @@ React + Vite client for the LivePoll Soroban mini-dApp.
 - connect to supported Stellar wallets
 - read poll state from the deployed Soroban contract
 - initialize and vote through signed transactions
+- trigger reward minting through the poll contract's `vote_for` flow
 - show transaction progress and completion states
 - cache recent poll snapshots for faster perceived loading
 - display recent contract events from Stellar RPC
+- adapt the voting/actions/activity layout across desktop and mobile
 
 ## Important files
 
@@ -28,6 +30,7 @@ cd frontend
 & "C:\Program Files\nodejs\npm.cmd" install
 & "C:\Program Files\nodejs\npm.cmd" run dev
 & "C:\Program Files\nodejs\npm.cmd" run test
+& "C:\Program Files\nodejs\npm.cmd" run lint
 & "C:\Program Files\nodejs\npm.cmd" run build
 ```
 
@@ -39,5 +42,6 @@ The app expects:
 - `VITE_STELLAR_HORIZON_URL`
 - `VITE_STELLAR_NETWORK_PASSPHRASE`
 - `VITE_STELLAR_CONTRACT_ID`
+- `VITE_STELLAR_REWARD_TOKEN_ID`
 
-The deploy script in `contracts/scripts/deploy-testnet.ps1` updates `VITE_STELLAR_CONTRACT_ID` automatically after a successful deployment.
+The deploy script in `contracts/scripts/deploy-testnet.ps1` updates `VITE_STELLAR_CONTRACT_ID` automatically after a successful deployment. Add the reward-token contract ID in `VITE_STELLAR_REWARD_TOKEN_ID` before initializing a new poll instance.
