@@ -5,7 +5,7 @@ LivePoll is a small end-to-end Stellar Soroban mini-dApp for testnet. It now inc
 ## Live demo
 
 - Deployed app: `https://livepoll-mini-dapp.netlify.app/`
-- Demo video: `https://drive.google.com/file/d/11M34NFfMhx-YCESKixXsz0nZfDKVs7gn/view?usp=drive_link`
+- Demo video: `https://drive.google.com/file/d/1u2b5kxg-GHxfQPh-K-y7CBHzZbKRpRDU/view?usp=drive_link`
 
 ## Deliverable overview
 
@@ -107,9 +107,7 @@ cd contracts
 cargo test
 ```
 
-## Passing test output
-
-![Passing test output](docs/images/test-output-passing.svg)
+## Verification summary
 
 - Contract tests: `5 passed`
 - Frontend tests: `6 passed`
@@ -118,9 +116,39 @@ cargo test
 ## Demo assets
 
 - Screenshots: [docs/images](docs/images)
+- Desktop dashboard view:
+
+![LivePoll desktop dashboard](docs/images/dashboard-pc.png)
+
+- Mobile responsive view:
+
+![LivePoll mobile view](docs/images/mobile-view.png)
+
 - Post-vote screen:
 
 ![LivePoll after voting](docs/images/livepoll-after-vote.png)
+
+## CI/CD
+
+- GitHub Actions runs on every push and pull request.
+- The `contracts` job runs `cargo test` inside `contracts/`.
+- The `frontend` job runs `npm ci`, `npm run test`, `npm run lint`, and `npm run build` inside `frontend/`.
+- This keeps the advanced pair validated across both the Soroban contracts and the React frontend before deployment.
+
+![GitHub Actions CI/CD](docs/images/ci-cd.png)
+
+## Deployment Flow For The Advanced Pair
+
+1. Build the Soroban workspace with `stellar contract build` from `contracts/`.
+2. Fund or create the deployment identity on Stellar testnet.
+3. Deploy the `poll_reward_token` contract first and capture its contract ID.
+4. Deploy the `live_poll` contract second and capture its contract ID.
+5. Initialize the reward-token contract with the deployer as admin and the poll contract as minter.
+6. Initialize the poll contract with the reward-token contract ID, question, and both options.
+7. Update `frontend/.env` with `VITE_STELLAR_CONTRACT_ID` and `VITE_STELLAR_REWARD_TOKEN_ID` so the UI points to the live advanced deployment.
+8. Deploy the frontend through Netlify using the root `netlify.toml` monorepo configuration.
+
+The repo includes [`contracts/scripts/deploy-testnet.ps1`](contracts/scripts/deploy-testnet.ps1) to automate this end-to-end testnet flow, including the frontend env update for the advanced contract pair.
 
 ## Notes
 
