@@ -124,10 +124,6 @@ cargo test
 
 ![LivePoll mobile view](docs/images/mobile-view.png)
 
-- Post-vote screen:
-
-![LivePoll after voting](docs/images/livepoll-after-vote.png)
-
 ## CI/CD
 
 - GitHub Actions runs on every push and pull request.
