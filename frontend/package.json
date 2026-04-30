@@ -14,16 +14,16 @@
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^1.9.5",
     "@stellar/stellar-sdk": "^13.3.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "optionalDependencies": {
     "bufferutil": "^4.1.0",
     "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^5.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.8.3",
