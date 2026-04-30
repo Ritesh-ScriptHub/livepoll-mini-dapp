@@ -143,7 +143,7 @@ input {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 28px;
-  height: 64px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -225,6 +225,7 @@ input {
   display: grid;
   gap: 6px;
   min-width: 320px;
+  max-width: 100%;
 }
 
 .wallet-picker-label {
@@ -239,6 +240,7 @@ input {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .wallet-picker-wrap {
@@ -285,6 +287,7 @@ input {
   font-size: 0.85rem;
   transition: all 0.2s;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .wallet-btn--idle {
@@ -307,6 +310,7 @@ input {
   background: var(--bg-raised);
   border: 1px solid var(--border-mid);
   color: var(--text-primary);
+  max-width: min(100%, 320px);
 }
 
 .wallet-btn--connected:hover {
@@ -318,6 +322,7 @@ input {
   max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .wallet-indicator {
@@ -467,6 +472,10 @@ input {
   line-height: 1.7;
 }
 
+.hero-break {
+  display: block;
+}
+
 .main-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.85fr);
@@ -598,6 +607,7 @@ input {
 .vote-option-body {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .vote-option-top {
@@ -629,6 +639,8 @@ input {
 
 .vote-option-label {
   font-size: 0.96rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .vote-option-pct {
@@ -689,6 +701,7 @@ input {
   border-radius: var(--radius-md);
   overflow: hidden;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .poll-meta-item {
@@ -697,6 +710,7 @@ input {
   flex-direction: column;
   gap: 4px;
   padding: 14px 16px;
+  min-width: 0;
 }
 
 .poll-meta-sep {
@@ -717,6 +731,7 @@ input {
   font-weight: 700;
   font-size: 1rem;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .btn-primary,
@@ -1198,6 +1213,7 @@ input {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
 }
 
 .activity-type-dot {
@@ -1223,6 +1239,7 @@ input {
   font-size: 0.9rem;
   color: var(--text-primary);
   margin-bottom: 3px;
+  overflow-wrap: anywhere;
 }
 
 .activity-meta {
@@ -1260,6 +1277,10 @@ input {
 }
 
 @media (max-width: 900px) {
+  .site-header {
+    position: static;
+  }
+
   .main-grid {
     grid-template-columns: 1fr;
     padding: 0 16px;
@@ -1274,7 +1295,14 @@ input {
   }
 
   .header-inner {
+    height: auto;
+    min-height: 0;
     padding: 0 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 14px;
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 
   .header-nav {
@@ -1283,14 +1311,30 @@ input {
 
   .wallet-zone {
     width: 100%;
+    margin-left: 0;
   }
 
   .wallet-connect-stack {
     min-width: 0;
   }
 
+  .wallet-dropdown-wrap,
+  .wallet-btn--connected {
+    width: 100%;
+  }
+
+  .wallet-menu {
+    width: 100%;
+    right: auto;
+    left: 0;
+  }
+
   .hero-title {
     font-size: 2.4rem;
+  }
+
+  .hero-sub {
+    max-width: 34rem;
   }
 
   .field-row {
@@ -1303,9 +1347,27 @@ input {
 }
 
 @media (max-width: 480px) {
+  .hero-break {
+    display: none;
+  }
+
+  .card,
+  .activity-card .card-header,
+  .activity-empty,
+  .activity-row {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
   .wallet-picker-row {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .wallet-picker-wrap,
+  .wallet-btn--idle,
+  .wallet-btn--connected {
+    width: 100%;
   }
 
   .wallet-btn--idle {
@@ -1313,15 +1375,21 @@ input {
   }
 
   .wallet-label {
-    max-width: 110px;
+    max-width: none;
+    flex: 1;
   }
 
   .poll-meta {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .poll-meta-item {
-    min-width: 50%;
+    min-width: 0;
+  }
+
+  .poll-meta-sep {
+    display: none;
   }
 
   .activity-row,
@@ -1345,5 +1413,51 @@ input {
 
   .activity-choice {
     white-space: normal;
+  }
+
+  .vote-option {
+    grid-template-columns: auto 1fr;
+    align-items: flex-start;
+  }
+
+  .voted-chip {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .vote-option-top {
+    grid-template-columns: auto 1fr;
+  }
+
+  .vote-option-pct {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .info-row {
+    align-items: flex-start;
+  }
+
+  .info-val {
+    max-width: 60%;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-strip,
+  .main-grid,
+  .activity-card {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .header-inner {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .poll-meta {
+    grid-template-columns: 1fr;
   }
 }

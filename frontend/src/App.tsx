@@ -598,7 +598,7 @@ function App() {
           <h1 className="hero-title">Live Poll</h1>
           <p className="hero-sub">
             A one-question Soroban poll with multi-wallet login, inter-contract reward minting,
-            <br />
+            <br className="hero-break" />
             live event updates, and transaction tracking.
           </p>
         </div>
