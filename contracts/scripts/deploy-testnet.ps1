@@ -1,7 +1,13 @@
 param(
   [string]$Identity = "poll-admin",
-  [string]$Alias = "live-poll",
-  [string]$FrontendEnvPath = "..\frontend\.env"
+  [string]$PollAlias = "live-poll",
+  [string]$RewardAlias = "live-poll-reward",
+  [string]$FrontendEnvPath = "..\frontend\.env",
+  [string]$Question = "Which advanced mode should we showcase?",
+  [string]$OptionA = "Token vote flow",
+  [string]$OptionB = "Responsive polish",
+  [string]$RewardTokenName = "Poll Reward Token",
+  [string]$RewardTokenSymbol = "VOTE"
 )
 
 $ErrorActionPreference = "Stop"
@@ -20,21 +26,59 @@ if ($knownIdentities -match "(?m)^$([regex]::Escape($Identity))$") {
   stellar keys generate $Identity --network testnet --fund
 }
 
-$wasmPath = "target\wasm32v1-none\release\live_poll.wasm"
+$sourceAddress = stellar keys public-key $Identity
+$pollWasmPath = "target\wasm32v1-none\release\live_poll.wasm"
+$rewardWasmPath = "target\wasm32v1-none\release\poll_reward_token.wasm"
 
-Write-Host "Deploying contract..."
-$contractId = stellar contract deploy `
-  --wasm $wasmPath `
+Write-Host "Deploying reward token contract..."
+$rewardContractId = stellar contract deploy `
+  --wasm $rewardWasmPath `
   --source-account $Identity `
   --network testnet `
-  --alias $Alias
+  --alias $RewardAlias
 
-if (-not $contractId) {
-  Write-Host "Reading contract ID from alias..."
-  $contractId = stellar contract alias show $Alias
+if (-not $rewardContractId) {
+  Write-Host "Reading reward token contract ID from alias..."
+  $rewardContractId = stellar contract alias show $RewardAlias
 }
 
-Write-Host $contractId
+Write-Host "Deploying poll contract..."
+$pollContractId = stellar contract deploy `
+  --wasm $pollWasmPath `
+  --source-account $Identity `
+  --network testnet `
+  --alias $PollAlias
+
+if (-not $pollContractId) {
+  Write-Host "Reading poll contract ID from alias..."
+  $pollContractId = stellar contract alias show $PollAlias
+}
+
+Write-Host "Initializing reward token contract..."
+stellar contract invoke `
+  --id $rewardContractId `
+  --source-account $Identity `
+  --network testnet `
+  -- init `
+  --admin $sourceAddress `
+  --minter $pollContractId `
+  --name $RewardTokenName `
+  --symbol $RewardTokenSymbol
+
+Write-Host "Initializing poll contract..."
+stellar contract invoke `
+  --id $pollContractId `
+  --source-account $Identity `
+  --network testnet `
+  -- init `
+  --admin $sourceAddress `
+  --reward-token $rewardContractId `
+  --question $Question `
+  --option-a $OptionA `
+  --option-b $OptionB
+
+Write-Host "Poll contract: $pollContractId"
+Write-Host "Reward token contract: $rewardContractId"
 
 $resolvedEnvPath = Resolve-Path (Join-Path $contractsRoot $FrontendEnvPath) -ErrorAction SilentlyContinue
 if (-not $resolvedEnvPath) {
@@ -44,9 +88,21 @@ if (-not $resolvedEnvPath) {
 
 $envContent = Get-Content $resolvedEnvPath
 if ($envContent -match "^VITE_STELLAR_CONTRACT_ID=") {
-  $updated = $envContent -replace "^VITE_STELLAR_CONTRACT_ID=.*$", "VITE_STELLAR_CONTRACT_ID=$contractId"
+  $updated = $envContent -replace "^VITE_STELLAR_CONTRACT_ID=.*$", "VITE_STELLAR_CONTRACT_ID=$pollContractId"
 } else {
-  $updated = @($envContent + "VITE_STELLAR_CONTRACT_ID=$contractId")
+  $updated = @($envContent + "VITE_STELLAR_CONTRACT_ID=$pollContractId")
+}
+
+$updated = if ($updated -match "^VITE_STELLAR_REWARD_TOKEN_ID=") {
+  $updated -replace "^VITE_STELLAR_REWARD_TOKEN_ID=.*$", "VITE_STELLAR_REWARD_TOKEN_ID=$rewardContractId"
+} else {
+  @($updated + "VITE_STELLAR_REWARD_TOKEN_ID=$rewardContractId")
+}
+
+$updated = if ($updated -match "^VITE_STELLAR_VOTE_TOKEN_ID=") {
+  $updated -replace "^VITE_STELLAR_VOTE_TOKEN_ID=.*$", "VITE_STELLAR_VOTE_TOKEN_ID=$rewardContractId"
+} else {
+  @($updated + "VITE_STELLAR_VOTE_TOKEN_ID=$rewardContractId")
 }
 
 Set-Content -Path $resolvedEnvPath -Value $updated
