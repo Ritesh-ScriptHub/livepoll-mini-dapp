@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "lint": "tsc --noEmit",
     "preview": "vite preview",
     "check": "tsc --noEmit",
     "test": "node --test --experimental-strip-types tests/*.test.ts"

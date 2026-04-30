@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CONTRACT_ID, MIN_BALANCE_XLM } from "./config";
+import { CONTRACT_ID, MIN_BALANCE_XLM, REWARD_TOKEN_ID } from "./config";
 import { clearCachedItem, getCachedItem, setCachedItem } from "./lib/cache";
 import { humanizeWalletError, isContractNotInitializedError } from "./lib/errors";
 import { calculateVotePercents, defaultPoll } from "./lib/poll";
@@ -8,7 +8,10 @@ import {
   decodeEventValue,
   encodeInitArgs,
   encodeVoteArgs,
+  fetchContractVersion,
   fetchPollState,
+  fetchRewardPointsPerVote,
+  fetchRewardTokenAddress,
   fetchVoteFor,
   getEvents,
   latestLedger,
@@ -32,6 +35,18 @@ const explorerTxUrl = (hash: string) => `https://stellar.expert/explorer/testnet
 
 function shortAddress(address: string) {
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+function isMissingContractFunctionError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  const lower = message.toLowerCase();
+
+  return (
+    lower.includes("trying to invoke non-existent contract function") ||
+    lower.includes("non-existent contract function") ||
+    lower.includes("missingvalue") ||
+    lower.includes("error(wasmvm, missingvalue)")
+  );
 }
 
 function TxPulse({ status }: { status: TxStatus }) {
@@ -121,6 +136,10 @@ function App() {
   const [isUsingCachedSnapshot, setIsUsingCachedSnapshot] = useState(false);
   const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
   const [walletMenuOpen, setWalletMenuOpen] = useState(false);
+  const [rewardTokenAddress, setRewardTokenAddress] = useState(REWARD_TOKEN_ID);
+  const [rewardPoints, setRewardPoints] = useState(10);
+  const [contractVersion, setContractVersion] = useState(1);
+  const [supportsAdvancedFlow, setSupportsAdvancedFlow] = useState(false);
   const intervalRef = useRef<number | null>(null);
   const cursorRef = useRef<string | undefined>(undefined);
   const walletAddressRef = useRef<string | undefined>(undefined);
@@ -160,6 +179,25 @@ function App() {
 
     try {
       const nextPoll = await fetchPollState();
+      try {
+        const version = await fetchContractVersion();
+        setContractVersion(version);
+      } catch {
+        setContractVersion(1);
+      }
+      try {
+        const [nextRewardToken, nextRewardPoints] = await Promise.all([
+          fetchRewardTokenAddress(),
+          fetchRewardPointsPerVote(),
+        ]);
+        setRewardTokenAddress(nextRewardToken);
+        setRewardPoints(nextRewardPoints);
+        setSupportsAdvancedFlow(true);
+      } catch {
+        setSupportsAdvancedFlow(false);
+        setRewardTokenAddress("");
+        setRewardPoints(0);
+      }
       setPoll(nextPoll);
       setFormQuestion(nextPoll.question);
       setFormOptionA(nextPoll.optionA);
@@ -191,6 +229,9 @@ function App() {
       setIsInitialized(false);
       setIsUsingCachedSnapshot(false);
       setLastSyncAt(null);
+      setSupportsAdvancedFlow(false);
+      setRewardTokenAddress("");
+      setRewardPoints(0);
       clearCachedItem(POLL_CACHE_KEY);
       if (address) {
         clearCachedItem(voteCacheKey(address));
@@ -351,6 +392,11 @@ function App() {
       return;
     }
 
+    if (!rewardTokenAddress) {
+      setErrorMessage("Add VITE_STELLAR_REWARD_TOKEN_ID before initializing the advanced reward-enabled poll.");
+      return;
+    }
+
     setIsBusy(true);
     setErrorMessage("");
     setLatestTxHash(null);
@@ -359,7 +405,7 @@ function App() {
       const prepared = await prepareWriteTx(
         wallet.address,
         "init",
-        encodeInitArgs(formQuestion, formOptionA, formOptionB, wallet.address),
+        encodeInitArgs(formQuestion, formOptionA, formOptionB, wallet.address, rewardTokenAddress),
       );
       const { signedTxXdr } = await signTransaction(prepared.toXDR(), wallet.address);
       const sendResult = await sendSignedTransaction(signedTxXdr);
@@ -397,7 +443,11 @@ function App() {
     setLatestTxHash(null);
 
     try {
-      const prepared = await prepareWriteTx(wallet.address, "vote", encodeVoteArgs(wallet.address, selectedVote));
+      const prepared = await prepareWriteTx(
+        wallet.address,
+        supportsAdvancedFlow ? "vote_for" : "vote",
+        encodeVoteArgs(wallet.address, selectedVote),
+      );
       const { signedTxXdr } = await signTransaction(prepared.toXDR(), wallet.address);
       const sendResult = await sendSignedTransaction(signedTxXdr);
       setTxStatus("pending");
@@ -410,6 +460,32 @@ function App() {
 
       setExistingVote(selectedVote);
     } catch (error) {
+      if (supportsAdvancedFlow && isMissingContractFunctionError(error)) {
+        setContractVersion(1);
+        setSupportsAdvancedFlow(false);
+
+        try {
+          const prepared = await prepareWriteTx(wallet.address, "vote", encodeVoteArgs(wallet.address, selectedVote));
+          const { signedTxXdr } = await signTransaction(prepared.toXDR(), wallet.address);
+          const sendResult = await sendSignedTransaction(signedTxXdr);
+          setTxStatus("pending");
+          setTxMessage("Legacy vote path detected. Vote submitted.");
+
+          const succeeded = await trackTransaction(sendResult.hash);
+          if (!succeeded) {
+            throw new Error("Vote transaction did not complete successfully.");
+          }
+
+          setExistingVote(selectedVote);
+          return;
+        } catch (fallbackError) {
+          setTxStatus("failed");
+          setTxMessage("Vote failed.");
+          setErrorMessage(humanizeWalletError(fallbackError));
+          return;
+        }
+      }
+
       setTxStatus("failed");
       setTxMessage("Vote failed.");
       setErrorMessage(humanizeWalletError(error));
@@ -521,7 +597,7 @@ function App() {
           <div className="hero-badge">On-chain voting</div>
           <h1 className="hero-title">Live Poll</h1>
           <p className="hero-sub">
-            A one-question Soroban poll with multi-wallet login, contract-backed votes,
+            A one-question Soroban poll with multi-wallet login, inter-contract reward minting,
             <br />
             live event updates, and transaction tracking.
           </p>
@@ -617,27 +693,51 @@ function App() {
             </div>
           </div>
 
-          <button
-            className={`btn-primary ${isBusy ? "btn--loading" : ""}`}
-            onClick={submitVote}
-            disabled={isBusy || isHydrating || existingVote !== null || !isInitialized}
-          >
-            {existingVote !== null ? (
-              "Vote Recorded"
-            ) : isBusy ? (
-              <>
-                <span className="spinner" />
-                Submitting...
-              </>
-            ) : isHydrating ? (
-              <>
-                <span className="spinner" />
-                Loading Poll...
-              </>
-            ) : (
-              "Submit Vote"
-            )}
-          </button>
+          <div className="analytics-grid">
+            <div className="analytics-card">
+              <span className="analytics-label">Reward per vote</span>
+              <strong className="analytics-value">{rewardPoints} pts</strong>
+            </div>
+            <div className="analytics-card">
+              <span className="analytics-label">Reward token</span>
+              <strong className="analytics-value mono">{rewardTokenAddress ? shortAddress(rewardTokenAddress) : "Pending"}</strong>
+            </div>
+            <div className="analytics-card">
+              <span className="analytics-label">Submission tier</span>
+              <strong className="analytics-value">Advanced</strong>
+            </div>
+          </div>
+
+          <div className="action-row">
+            <button
+              className={`btn-primary ${isBusy ? "btn--loading" : ""}`}
+              onClick={submitVote}
+              disabled={isBusy || isHydrating || existingVote !== null || !isInitialized}
+            >
+              {existingVote !== null ? (
+                "Vote Recorded"
+              ) : isBusy ? (
+                <>
+                  <span className="spinner" />
+                  Submitting...
+                </>
+              ) : isHydrating ? (
+                <>
+                  <span className="spinner" />
+                  Loading Poll...
+                </>
+              ) : (
+                "Submit Vote"
+              )}
+            </button>
+            <button
+              className="btn-secondary btn-secondary--inline"
+              onClick={() => refreshPoll(wallet?.address)}
+              disabled={isBusy || isRefreshing}
+            >
+              {isRefreshing ? "Syncing..." : "Refresh Snapshot"}
+            </button>
+          </div>
 
           {existingVote !== null && <p className="hint-text">Your wallet has already voted on this poll.</p>}
 
@@ -738,6 +838,11 @@ function App() {
             <div className="contract-block">
               <span className="info-key">Contract ID</span>
               <span className="mono contract-id">{CONTRACT_ID || "Add VITE_STELLAR_CONTRACT_ID after deployment"}</span>
+            </div>
+
+            <div className="contract-block">
+              <span className="info-key">Reward Token</span>
+              <span className="mono contract-id">{rewardTokenAddress || "Add VITE_STELLAR_REWARD_TOKEN_ID before initialization"}</span>
             </div>
 
             {errorMessage && (

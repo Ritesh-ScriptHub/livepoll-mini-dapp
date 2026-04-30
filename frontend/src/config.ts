@@ -9,6 +9,10 @@ export const NETWORK_PASSPHRASE =
   "Test SDF Network ; September 2015";
 
 export const CONTRACT_ID = import.meta.env.VITE_STELLAR_CONTRACT_ID || "";
+export const REWARD_TOKEN_ID =
+  import.meta.env.VITE_STELLAR_REWARD_TOKEN_ID ||
+  import.meta.env.VITE_STELLAR_VOTE_TOKEN_ID ||
+  "";
 
 export const MIN_BALANCE_XLM = 1.5;
 

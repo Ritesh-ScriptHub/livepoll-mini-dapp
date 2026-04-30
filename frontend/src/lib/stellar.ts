@@ -92,9 +92,54 @@ export async function fetchVoteFor(address: string): Promise<number | null> {
   return native === null || native === undefined ? null : Number(native);
 }
 
+export async function fetchRewardTokenAddress(): Promise<string> {
+  const tx = await buildReadOnlyTx("get_reward_token");
+  const simulation = await server.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(simulation)) {
+    throw new Error(simulation.error);
+  }
+
+  const result = simulation.result?.retval;
+  if (!result) {
+    throw new Error("The contract returned no reward token address.");
+  }
+
+  return String(scValToNative(result));
+}
+
+export async function fetchRewardPointsPerVote(): Promise<number> {
+  const tx = await buildReadOnlyTx("reward_points_per_vote");
+  const simulation = await server.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(simulation)) {
+    throw new Error(simulation.error);
+  }
+
+  const result = simulation.result?.retval;
+  if (!result) {
+    throw new Error("The contract returned no reward points value.");
+  }
+
+  return Number(scValToNative(result));
+}
+
+export async function fetchContractVersion(): Promise<number> {
+  const tx = await buildReadOnlyTx("version");
+  const simulation = await server.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(simulation)) {
+    throw new Error(simulation.error);
+  }
+
+  const result = simulation.result?.retval;
+  if (!result) {
+    throw new Error("The contract returned no version.");
+  }
+
+  return Number(scValToNative(result));
+}
+
 export async function prepareWriteTx(
   sourceAddress: string,
-  method: "init" | "vote",
+  method: "init" | "vote" | "vote_for",
   args: xdr.ScVal[],
 ) {
   const source = await loadAccount(sourceAddress);
@@ -194,9 +239,16 @@ export async function getEvents(startLedger: number, cursor?: string): Promise<R
   return data.result as RpcEventResponse;
 }
 
-export function encodeInitArgs(question: string, optionA: string, optionB: string, admin: string) {
+export function encodeInitArgs(
+  question: string,
+  optionA: string,
+  optionB: string,
+  admin: string,
+  rewardToken: string,
+) {
   return [
     new Address(admin).toScVal(),
+    new Address(rewardToken).toScVal(),
     nativeToScVal(question),
     nativeToScVal(optionA),
     nativeToScVal(optionB),

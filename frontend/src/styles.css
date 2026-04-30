@@ -730,6 +730,18 @@ input {
   transition: all 0.2s;
 }
 
+.action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.btn-secondary--inline {
+  width: auto;
+  min-width: 170px;
+}
+
 .btn-primary {
   padding: 14px 24px;
   font-family: var(--font-display);
@@ -900,6 +912,36 @@ input {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.analytics-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.analytics-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.analytics-value {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .field-stack {
@@ -1254,6 +1296,10 @@ input {
   .field-row {
     grid-template-columns: 1fr;
   }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1275,12 +1321,29 @@ input {
   }
 
   .poll-meta-item {
-    min-width: 80px;
+    min-width: 50%;
   }
 
   .activity-row,
   .card-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-secondary--inline {
+    width: 100%;
+  }
+
+  .activity-row-left {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .activity-choice {
+    white-space: normal;
   }
 }
