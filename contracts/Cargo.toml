@@ -1,5 +1,5 @@
 [workspace]
-members = ["live_poll"]
+members = ["live_poll", "poll_reward_token"]
 resolver = "2"
 
 [workspace.dependencies]

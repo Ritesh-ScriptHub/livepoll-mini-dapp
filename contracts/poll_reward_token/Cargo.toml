@@ -1,5 +1,5 @@
 [package]
-name = "live-poll"
+name = "poll-reward-token"
 version = "0.1.0"
 edition = "2021"
 publish = false
@@ -11,5 +11,4 @@ crate-type = ["cdylib", "rlib"]
 soroban-sdk = { workspace = true }
 
 [dev-dependencies]
-poll-reward-token = { path = "../poll_reward_token" }
 soroban-sdk = { workspace = true, features = ["testutils"] }

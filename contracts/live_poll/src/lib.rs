@@ -1,10 +1,11 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, panic_with_error, symbol_short, Address,
-    Env, String, Symbol,
+    contract, contractclient, contracterror, contractimpl, contracttype, panic_with_error,
+    symbol_short, Address, Env, String, Symbol,
 };
 
+const REWARD_POINTS_PER_VOTE: i128 = 10;
 const INSTANCE_BUMP_AMOUNT: u32 = 518_400;
 const INSTANCE_LIFETIME_THRESHOLD: u32 = 172_800;
 const PERSISTENT_BUMP_AMOUNT: u32 = 2_592_000;
@@ -25,6 +26,7 @@ pub enum LivePollError {
 pub enum DataKey {
     Poll,
     Admin,
+    RewardToken,
     Vote(Address),
 }
 
@@ -42,9 +44,21 @@ pub struct PollState {
 #[contract]
 pub struct LivePollContract;
 
+#[contractclient(name = "RewardTokenClient")]
+pub trait RewardTokenApi {
+    fn mint(env: Env, to: Address, amount: i128);
+}
+
 #[contractimpl]
 impl LivePollContract {
-    pub fn init(env: Env, admin: Address, question: String, option_a: String, option_b: String) {
+    pub fn init(
+        env: Env,
+        admin: Address,
+        reward_token: Address,
+        question: String,
+        option_a: String,
+        option_b: String,
+    ) {
         if env.storage().instance().has(&DataKey::Poll) {
             panic_with_error!(&env, LivePollError::AlreadyInitialized);
         }
@@ -62,6 +76,7 @@ impl LivePollContract {
 
         env.storage().instance().set(&DataKey::Poll, &poll);
         env.storage().instance().set(&DataKey::Admin, &admin);
+        env.storage().instance().set(&DataKey::RewardToken, &reward_token);
         bump_instance(&env);
 
         env.events()
@@ -69,6 +84,10 @@ impl LivePollContract {
     }
 
     pub fn vote(env: Env, voter: Address, choice: u32) {
+        Self::vote_for(env, voter, choice);
+    }
+
+    pub fn vote_for(env: Env, voter: Address, choice: u32) {
         voter.require_auth();
         ensure_initialized(&env);
 
@@ -97,6 +116,10 @@ impl LivePollContract {
             PERSISTENT_BUMP_AMOUNT,
         );
         bump_instance(&env);
+
+        let reward_token = get_reward_token(&env);
+        let reward_client = RewardTokenClient::new(&env, &reward_token);
+        reward_client.mint(&voter, &REWARD_POINTS_PER_VOTE);
 
         env.events()
             .publish((symbol_short!("vote"), voter), choice);
@@ -135,8 +158,19 @@ impl LivePollContract {
         admin
     }
 
+    pub fn get_reward_token(env: Env) -> Address {
+        ensure_initialized(&env);
+        let reward_token = get_reward_token(&env);
+        bump_instance(&env);
+        reward_token
+    }
+
+    pub fn reward_points_per_vote(_env: Env) -> i128 {
+        REWARD_POINTS_PER_VOTE
+    }
+
     pub fn version(_env: Env) -> u32 {
-        1
+        2
     }
 }
 
@@ -151,6 +185,13 @@ fn get_poll_state(env: &Env) -> PollState {
     env.storage()
         .instance()
         .get(&DataKey::Poll)
+        .unwrap_or_else(|| panic_with_error!(env, LivePollError::NotInitialized))
+}
+
+fn get_reward_token(env: &Env) -> Address {
+    env.storage()
+        .instance()
+        .get(&DataKey::RewardToken)
         .unwrap_or_else(|| panic_with_error!(env, LivePollError::NotInitialized))
 }
 
