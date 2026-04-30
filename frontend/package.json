@@ -17,6 +17,10 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
+  "optionalDependencies": {
+    "bufferutil": "^4.1.0",
+    "utf-8-validate": "^5.0.10"
+  },
   "devDependencies": {
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
